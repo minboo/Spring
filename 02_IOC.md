@@ -90,3 +90,52 @@ UserService userService = context.getBean("userService", UserService.class);
 ```
 创建完对象后，默认调用的是无参数构造函数完成对象创建
   
+## 2.4.1 传统注入属性
+  
+常规思路常规代码的用法：
+创建类，创造属性和方法
+
+> 第一种使用set方式进行注入（原始做法）
+>
+> 第二种是有参函数进行构造
+  
+```java
+public String getAddress() {
+        return address;
+    }
+private String address;
+
+Book book=new Book();//无参set注入
+book.setAddress("123");
+
+Book book=new Book("123");//调用有参数函数构造注入
+```
+## 2.4.2 xml注入属性
+  
+在spring配置文件中进行注入
+  
+set方法的注入属性
+  
+在xml文件下注入使用bean
+  
+用poperty完成属性注入
+```xml
+> poperty name是属性 value是值
+<bean id="book" class="com.atguigu.spring5.Book">
+<property name="码农研究僧" value="99999"></property>
+</bean>
+```
+在java中加载配置文件以及创建对象
+```java 
+public void testBook1() {
+        //1 加载spring配置文件
+        ApplicationContext context =
+                new ClassPathXmlApplicationContext("bean1.xml");
+
+        //2 获取配置创建的对象
+        Book book = context.getBean("book", Book.class);
+
+        System.out.println(book);
+        book.testDemo();
+    }
+```
