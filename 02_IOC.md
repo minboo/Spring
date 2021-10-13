@@ -119,8 +119,9 @@ set方法的注入属性
 在xml文件下注入使用bean
   
 用poperty完成属性注入
-```xml
+
 > poperty name是属性 value是值
+```xml
 <bean id="book" class="com.atguigu.spring5.Book">
 <property name="码农研究僧" value="99999"></property>
 </bean>
@@ -139,3 +140,46 @@ public void testBook1() {
         book.testDemo();
     }
 ```
+  
+定义一个book类
+```java
+public class Book {
+
+
+    public void setBname(String bname) {
+        this.bname = bname;
+    }
+
+    //创建属性
+    private String bname;
+    private String bauthor;
+
+
+    private String address;
+
+    //创建属性对应的set方法
+
+
+    public void setBauthor(String bauthor) {
+        this.bauthor = bauthor;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void testDemo() {
+        System.out.println(bname+"::"+bauthor+"::"+address);
+    }
+
+}
+```
+  
+**第二种：有参函数进行构造注入属性区别只是在xml以及java的方法构造而已其他都一样**
+```xml
+<bean id="orders" class="com.atguigu.spring5.Orders">
+        <constructor-arg name="oname" value="电脑"></constructor-arg>
+        <constructor-arg name="address" value="China"></constructor-arg>
+    </bean>
+```
+`constructor-arg`是有参构造函数的属性
