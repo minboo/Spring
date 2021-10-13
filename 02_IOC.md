@@ -264,3 +264,244 @@ spring的注入
 <bean id="userDaoImpl" class="com.atguigu.spring5.dao.UserDaoImpl"></bean>
 
 ```
+
+## 2.4.6 注入属性内部bean
+
+设置两个类
+```java
+//部门类
+public class Dept {
+    private String dname;
+    public void setDname(String dname) {
+        this.dname = dname;
+    }
+}
+
+//员工类
+public class Emp {
+    private String ename;
+    private String gender;
+    //员工属于某一个部门，使用对象形式表示
+    private Dept dept;
+    
+    public void setDept(Dept dept) {
+        this.dept = dept;
+    }
+    public void setEname(String ename) {
+        this.ename = ename;
+    }
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+}
+
+```
+
+通过spring的配置文件进行配置
+```xml
+<bean id="emp" class="com.atguigu.spring5.bean.Emp">
+        <!--设置两个普通属性-->
+        <property name="ename" value="lucy"></property>
+        <property name="gender" value="女"></property>
+        <!--设置对象类型属性-->
+        <property name="dept">
+            <bean id="dept" class="com.atguigu.spring5.bean.Dept">
+                <property name="dname" value="安保部"></property>
+            </bean>
+        </property>
+    </bean>
+```
+## 2.4.7注入属性级联赋值
+
+只是xml格式不同
+
+注意区分
+```xml
+<bean id="emp" class="com.atguigu.spring5.bean.Emp">
+        <!--设置两个普通属性-->
+        <property name="ename" value="lucy"></property>
+        <property name="gender" value="女"></property>
+        <!--级联赋值-->
+        <property name="dept" ref="dept"></property>
+       
+    </bean>
+    <bean id="dept" class="com.atguigu.spring5.bean.Dept">
+        <property name="dname" value="财务部"></property>
+    </bean>
+```
+或者是使用对象调用
+
+注意其中的区别`<property name="dept.dname" value="技术部"></property>`
+
+但是在java类中需要生成name的get方法
+```xml
+<bean id="emp" class="com.atguigu.spring5.bean.Emp">
+        <!--设置两个普通属性-->
+        <property name="ename" value="lucy"></property>
+        <property name="gender" value="女"></property>
+        <!--级联赋值-->
+        <property name="dept" ref="dept"></property>
+      
+    </bean>
+    <bean id="dept" class="com.atguigu.spring5.bean.Dept">
+        <property name="dname" value="财务部"></property>
+    </bean>
+```
+
+## 2.4.8注入数组/集合属性（含模板）
+```xml
+<bean id="对象名" class="包名"></bean>
+```
+
+在bean里面定义对象值使用porperty
+
+由于name中的属性 value值只能是一个
+
+而数组，集合的属性值为多个
+
+标签值一一对应
+```xml
+<property name="courses">
+            <array>
+                <value>java课程</value>
+                <value>数据库课程</value>
+            </array>
+        </property>
+```
+```xml
+<!--list类型属性注入-->
+        <property name="list">
+            <list>
+                <value>张三</value>
+                <value>小三</value>
+            </list>
+        </property>
+```
+```xml
+!--set类型属性注入-->
+        <property name="sets">
+            <set>
+                <value>MySQL</value>
+                <value>Redis</value>
+            </set>
+        </property>
+```
+
+注意区分map属性的value不同，使用的是entry属性
+
+因为map哈希有key和value值
+```xml
+<!--map类型属性注入-->
+        <property name="maps">
+            <map>
+                <entry key="JAVA" value="java"></entry>
+                <entry key="PHP" value="php"></entry>
+            </map>
+        </property>
+```
+**以下为类名的文件**
+```java
+public class Stu {
+    //1 数组类型属性
+    private String[] courses;
+    //2 list集合类型属性
+    private List<String> list;
+    //3 map集合类型属性
+    private Map<String,String> maps;
+    //4 set集合类型属性
+    private Set<String> sets;
+
+    //学生所学多门课程
+    private List<Course> courseList;
+    public void setCourseList(List<Course> courseList) {
+        this.courseList = courseList;
+    }
+
+    public void setSets(Set<String> sets) {
+        this.sets = sets;
+    }
+    public void setCourses(String[] courses) {
+        this.courses = courses;
+    }
+    public void setList(List<String> list) {
+        this.list = list;
+    }
+    public void setMaps(Map<String, String> maps) {
+        this.maps = maps;
+    }
+
+    public void test() {
+        System.out.println(Arrays.toString(courses));
+        System.out.println(list);
+        System.out.println(maps);
+        System.out.println(sets);
+        System.out.println(courseList);
+    }
+}
+```
+在测试类中
+
+>加载xml配置以及调用
+>
+>加载配置文件的创建对象 调用文件路径
+>
+>然后获取对象的类名 最后的输出结果给类名的对象
+```java
+    @Test
+    public void testCollection1() {
+        ApplicationContext context =
+                new ClassPathXmlApplicationContext("bean1.xml");
+        类名 对象名 = context.getBean("对象名", 类名.class);
+        对象名.test();
+    }
+```
+## 2.4.9集合注入对象属性
+```java
+<bean id......>
+<!--注入list集合类型，值是对象-->
+        <property name="courseList">
+            <list>
+                <ref bean="course1"></ref>
+                <ref bean="course2"></ref>
+            </list>
+        </property>
+</bean>
+
+<!--创建多个course对象-->
+    <bean id="course1" class="com.atguigu.spring5.collectiontype.Course">
+        <property name="cname" value="Spring5框架"></property>
+    </bean>
+    <bean id="course2" class="com.atguigu.spring5.collectiontype.Course">
+        <property name="cname" value="MyBatis框架"></property>
+    </bean>
+```
+
+## 2.4.10集合注入属性的公共部提取
+使用util的名称空间注入
+
+回顾p的注入
+`xmlns:p="http://www.springframework.org/schema/p"`
+
+所以util的注入类似
+
+但xsi的位置也要多一个，把bean的名称都改为util
+
+```xml
+xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+```
+
+```xml
+<!--1 提取list集合类型属性注入-->
+    <util:list id="bookList">
+        <value>易筋经</value>
+        <value>九阴真经</value>
+        <value>九阳神功</value>
+    </util:list>
+
+    <!--2 提取list集合类型属性注入使用-->
+    <bean id="book" class="com.atguigu.spring5.collectiontype.Book" scope="prototype">
+        <property name="list" ref="bookList"></property>
+    </bean>
+```
