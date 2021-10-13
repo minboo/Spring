@@ -183,3 +183,84 @@ public class Book {
     </bean>
 ```
 `constructor-arg`是有参构造函数的属性
+## 2.4.3 p名称空间注入
+```xml
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+      
+          <bean id="book" class="com.atguigu.spring5.Book" p:bname="九阳神功" p:bauthor="无名氏">
+    </bean>
+```
+
+就可以重新进行改造 `xmlns:p="http://www.springframework.org/schema/p"`
+
+多了个p操作的不同 注意区别
+
+## 2.4.4 xml注入其他属性
+将value值设置一个null值
+
+不是给value设置一个null而是使用一个null标签<null/>
+```xml
+<property name="address">
+            <null/>
+        </property>
+```
+
+属性值包含其他符号
+
+如果value中包含《》会识别不出则需要转义
+
+<可以用&lt;
+
+>可以用&gt;
+>
+或者使用CDATA<value><! [ CDATA [ 所需要的值 ] ]></value>
+```xml
+<property name="address">
+            <value><![CDATA[<<南京>>]]></value>
+        </property>
+```
+## 2.4.5 注入属性外部bean
+
+建立两个类
+```java
+public class UserService {//service类
+
+    //创建UserDao类型属性，生成set方法
+    private UserDao userDao;
+    public void setUserDao(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    public void add() {
+        System.out.println("service add...............");
+        userDao.update();//调用dao方法
+    }
+}
+
+public class UserDaoImpl implements UserDao {//dao类
+
+    @Override
+    public void update() {
+        System.out.println("dao update...........");
+    }
+}
+
+```
+
+spring的注入
+
+此时属性值是对象，不能用value 需要用ref
+```xml
+<bean id="userService" class="com.atguigu.spring5.service.UserService">
+    <!--注入userDao对象
+        name属性：类里面属性名称
+        ref属性：创建userDao对象bean标签id值
+    -->
+    <property name="userDao" ref="userDaoImpl"></property>
+</bean>
+
+<bean id="userDaoImpl" class="com.atguigu.spring5.dao.UserDaoImpl"></bean>
+
+```
