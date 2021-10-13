@@ -1,0 +1,92 @@
+# 2.IOC
+## 2.1 IOC的处理过程
+
+(1)IOC底层原理
+
+(2) IOC接口(BeanFactory)
+
+(3) IOC操作Bean管理（基于xml)
+
+(4)IOC操作Bean管理(基于注解)
+
+## 2.2 IOC底层原理
+**1.xml解析**
+
+xml配置文件，配置创建的对象
+```xml
+<bean id=" " class=" "></bean>
+```
+**2.工厂模式**
+
+定义一个中间静态函数，降低其耦合度
+
+**3.反射**
+
+通过反射创建对象
+```xml
+Class xx=Class.forName(classValue);
+xx.newInstance();
+```
+## 2.3 IOC接口
+**IOC基于IOC容器，底层就是对象工厂**
+
+1.`BeanFactory`，Spring内部使用接口，不提供给开发人员，加载配置xml解析不会创建，只有创建对象才会getBean
+
+2.`ApplicationContext`是BeanFactory子接口，功能强大，开发人员可使用，加载配置就会创建对象
+
+3.`ApplicationContext`有一些特别的实现类
+
+特别是`ClassPathXmlApplicationContext`，在src目录下可以写文件名
+
+如果是`FileSystemXmlApplicationContext`，在src目录下，必须写绝对路径
+
+在idea下点击ctrl+H进入
+
+
+![image](https://user-images.githubusercontent.com/69302396/137127686-f9dbaa72-a2dc-451c-8c07-9c1ced9515da.png)
+
+**示例代码**
+
+```java
+//1 加载spring配置文件
+ApplicationContext context =new ClassPathXmlApplicationContext("bean2.xml");
+
+//2 获取配置创建的对象
+UserService userService = context.getBean("userService", UserService.class);
+```
+
+## 2.4 IOC操作Bean管理（普通bean)
+
+**什么是Bean管理？**
+
+> Spring创建对象
+>
+> Spring注入属性
+
+
+**有两种方式可以实现**
+
+1.基于xml配置方式实现
+
+2.基于注解方式实现
+
+
+**在spring配置文件中，使用bean标签，在标签内加对应属性**
+
+>id属性 取一个别名
+>
+>class属性 创建类中包的路径
+
+在xml中配置文件<bean id="userService" class="com.atguigu.spring5.service.UserService">
+  
+在java文件中
+  
+```java
+  //1 加载spring配置文件
+ApplicationContext context =new ClassPathXmlApplicationContext("bean2.xml");
+
+//2 获取配置创建的对象
+UserService userService = context.getBean("userService", UserService.class);
+```
+创建完对象后，默认调用的是无参数构造函数完成对象创建
+  
