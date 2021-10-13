@@ -211,11 +211,7 @@ public class Book {
 
 如果value中包含《》会识别不出则需要转义
 
-<可以用&lt;
-
->可以用&gt;
->
-或者使用CDATA<value><! [ CDATA [ 所需要的值 ] ]></value>
+使用`CDATA<value><! [ CDATA [ 所需要的值 ] ]></value>`
 ```xml
 <property name="address">
             <value><![CDATA[<<南京>>]]></value>
