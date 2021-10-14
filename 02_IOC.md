@@ -775,7 +775,9 @@ xmlns:context="http://www.springframework.org/schema/context"
 基于注解方式实现对象创建
 
 **1.引入额外的aop依赖jar包**
+
 ![image](https://user-images.githubusercontent.com/69302396/137339395-4be6713f-864d-4773-8152-049039266621.png)
+
 **2.开启组件扫描，使用context的名称空间**
 
 这个context要通过名称空间引入
@@ -791,9 +793,11 @@ base-package如果定义多个包，可以加全路径，分别用逗号隔开
 或者是放置上层目录
 
 **3.创建类，再类上面添加注解，注解可以选择上面四种**
+
 （value等于之前bean的id值，默认是类名，而且首字母小写）
 
 （value默认不写的话，直接@注解 即可）
+
 ```xml
 //在注解里面value属性值可以省略不写，
 //默认值是类名称，首字母小写
