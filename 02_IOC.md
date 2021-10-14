@@ -546,3 +546,48 @@ public class MyBean implements FactoryBean<Course> {
         System.out.println(book2);
     }
 ```
+
+**2.spring 配置文件下 bean 标签设置单实例还是多实例里面有属性（scope）用于设置单实例还是多实例参数设置以及区别**
+```java
+@Test
+    public void testCollection2() {
+        ApplicationContext context =
+                new ClassPathXmlApplicationContext("bean2.xml");
+        Book book1 = context.getBean("book", Book.class);
+        Book book2 = context.getBean("book", Book.class);
+       // book.test();
+        System.out.println(book1);
+        System.out.println(book2);
+    }
+```
+
+**2.spring 配置文件下 bean 标签设置单实例还是多实例里面有属性（scope）用于设置单实例还是多实例参数设置以及区别
+
+> singleton 单实例对象，默认是这个。加载spring配置的时候就会创建对象
+> 
+> prototype 多实例对象。调用getBean方法的时候就会创建对象。
+> 
+> 测试代码用如上那个
+
+**3.其他参数 request 以及session**
+
+## 2.7 IOC操作Bean管理（bean生命周期）
+生命周期：从创建对象到对象销毁的过程
+
+过程：
+
+> 1.为构造器创建bean的实列（无参构造）
+> 
+> 2.为bean的属性设置和对其他bean引用（调用set方法）
+> 
+> 3.bean初始化配置
+> 
+> 4.获取bean
+> 
+> 5.销毁bean
+代码过程：
+```xml
+<bean id="orders" class="com.atguigu.spring5.bean.Orders" init-method="initMethod" destroy-method="destroyMethod">
+        <property name="oname" value="手机"></property>
+</bean>
+```
