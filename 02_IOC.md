@@ -561,7 +561,7 @@ public class MyBean implements FactoryBean<Course> {
     }
 ```
 
-**2.spring 配置文件下 bean 标签设置单实例还是多实例里面有属性（scope）用于设置单实例还是多实例参数设置以及区别
+**2.spring 配置文件下 bean 标签设置单实例还是多实例里面有属性（scope）用于设置单实例还是多实例参数设置以及区别**
 
 > singleton 单实例对象，默认是这个。加载spring配置的时候就会创建对象
 > 
@@ -590,4 +590,327 @@ public class MyBean implements FactoryBean<Course> {
 <bean id="orders" class="com.atguigu.spring5.bean.Orders" init-method="initMethod" destroy-method="destroyMethod">
         <property name="oname" value="手机"></property>
 </bean>
+```
+**调用方法的时候要在bean 显示初始化以及销毁**
+
+```java
+public class Orders {
+
+    //无参数构造
+    public Orders() {
+        System.out.println("第一步 执行无参数构造创建bean实例");
+    }
+
+    private String oname;
+    public void setOname(String oname) {
+        this.oname = oname;
+        System.out.println("第二步 调用set方法设置属性值");
+    }
+
+    //创建执行的初始化的方法
+    public void initMethod() {
+        System.out.println("第三步 执行初始化的方法");
+    }
+
+    //创建执行的销毁的方法
+    public void destroyMethod() {
+        System.out.println("第五步 执行销毁的方法");
+    }
+}
+
+```
+```java
+ @Test
+    public void testBean3() {
+//        ApplicationContext context =
+//                new ClassPathXmlApplicationContext("bean4.xml");
+        ClassPathXmlApplicationContext context =
+                new ClassPathXmlApplicationContext("bean4.xml");
+        Orders orders = context.getBean("orders", Orders.class);
+        System.out.println("第四步 获取创建bean实例对象");
+        System.out.println(orders);
+
+        //手动让bean实例销毁
+        context.close();
+    }
+```
+
+**还有加上额外的另外两步骤在初始化之前和初始化之后**
+
+> 把bean实例传递给bean后置处理器方法 放置在初始化之前和初始化之后 （放置在第3步骤前后）
+> 
+> 创建类，实现接口BeanPostProcessor，创建后置处理器
+
+```java
+public class MyBeanPost implements BeanPostProcessor {
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        System.out.println("在初始化之前执行的方法");
+        return bean;
+    }
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        System.out.println("在初始化之后执行的方法");
+        return bean;
+    }
+}
+
+```
+
+**在xml配置后置处理器**
+```xml
+<!--配置后置处理器-->
+    <bean id="myBeanPost" class="com.atguigu.spring5.bean.MyBeanPost"></bean>
+```
+
+结果截图：
+
+![image](https://user-images.githubusercontent.com/69302396/137337868-96910cf1-f144-465b-81dc-2c15014931b3.png)
+
+## 2.8 IOC操作Bean管理（xml自动装配）
+根据指定装配规则（名称或者类型），spring自动将其注入
+
+手动注入，为外部bean的实现过程，可参考如上过程
+
+自动注入 实现自动装配
+
+> bean标签属性autowire，配置自动装配
+> 
+> autowire属性常用两个值：
+> 
+> byName根据属性名称注入 ，注入值bean的id值和类属性名称一样
+> 
+> byType根据属性类型注入
+
+
+byName 如果外部bean有多个bean的话，只需要有个配对上了就可以
+但ByType如果外部有多个bean的话，会出错
+
+```xml
+<bean id="emp" class="com.atguigu.spring5.autowire.Emp" autowire="byType">
+        <!--<property name="dept" ref="dept"></property>-->
+    </bean>
+    <bean id="dept" class="com.atguigu.spring5.autowire.Dept"></bean>
+```
+以上为一个外部bean 但如果为多个外部bean，识别不上是哪一个
+```xml
+<bean id="emp" class="com.atguigu.spring5.autowire.Emp" autowire="byType">
+        <!--<property name="dept" ref="dept"></property>-->
+    </bean>
+    <bean id="dept" class="com.atguigu.spring5.autowire.Dept"></bean>
+    <bean id="dept1" class="com.atguigu.spring5.autowire.Dept"></bean>
+```
+## 2.9 IOC操作Bean管理（外部属性文件）
+**1.通过配置数据库信息**
+- 配置德鲁伊连接池
+- 引入德鲁伊连接池的jar包
+- 具体引入过程是 先复制jar包到工程lib下，在project structure的module中点加号添加进入
+**2.引入外部属性文件配置数据库连接池**
+而不是都放在xml文件，太多的name和value要修改
+
+补充
+
+1.直接配置连接池的配置信息
+```xml
+<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+        <property name="url" value="jdbc:mysql://localhost:3306/userDb"></property>
+        <property name="username" value="root"></property>
+        <property name="password" value="root"></property>
+    </bean>
+```
+2.创建尾部属性文件，properties格式文件，写数据库的信息
+在src下创建一个jdbc.properties的文件
+
+    prop.driverClass=com.mysql.jdbc.Driver
+    prop.url=jdbc:mysql://localhost:3306/userDb
+    prop.userName=root
+    prop.password=123123
+
+具体前面的名字可以随便写，只不过为了区分其他文件driverClass，以免混淆
+后引入spring配置文件
+
+**引入context名称空间**
+```xml
+xmlns:context="http://www.springframework.org/schema/context"
+```
+![image](https://user-images.githubusercontent.com/69302396/137338929-706e7ccf-17a6-449e-b72c-04c985ba0a50.png)
+
+类似前面所讲的p名称空间
+在spring配置文件使用标签引入外部属性文件
+
+```xml
+<!--引入外部属性文件-->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+
+    <!--配置连接池-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="${prop.driverClass}"></property>
+        <property name="url" value="${prop.url}"></property>
+        <property name="username" value="${prop.userName}"></property>
+        <property name="password" value="${prop.password}"></property>
+    </bean>
+```
+## 2.10 IOC操作Bean管理（基于注解方式）
+**注解是什么？**
+
+> 注解是代码特殊标记，格式：@注解名称（属性名称=属性值。。）
+> 
+> 可作用在类， 方法，属性上面
+> 
+> 注解目的：简化xml配置
+
+**spring针对Bean管理中创建对象提供注解**
+
+`@Component`： 游戏中普通的注解
+
+`@Service`：业务逻辑层以及Service层
+
+`@Controller`： 外部层
+
+`@Repository`：dao层即持久层
+
+功能是一样的，都可以用来创建对象，只不过把每个对象用在不同地方，以便查看
+
+基于注解方式实现对象创建
+
+**1.引入额外的aop依赖jar包**
+![image](https://user-images.githubusercontent.com/69302396/137339395-4be6713f-864d-4773-8152-049039266621.png)
+**2.开启组件扫描，使用context的名称空间**
+
+这个context要通过名称空间引入
+```xml
+<!--开启组件扫描
+ 1 如果扫描多个包，多个包使用逗号隔开
+ 2 扫描包上层目录
+-->
+<context:component-scan base-package="com.atguigu"></context:component-scan>
+```
+
+base-package如果定义多个包，可以加全路径，分别用逗号隔开
+或者是放置上层目录
+
+**3.创建类，再类上面添加注解，注解可以选择上面四种**
+（value等于之前bean的id值，默认是类名，而且首字母小写）
+
+（value默认不写的话，直接@注解 即可）
+```xml
+//在注解里面value属性值可以省略不写，
+//默认值是类名称，首字母小写
+//UserService -- userService
+//@Component(value = "userService")  //<bean id="userService" class=".."/>
+@Service
+public class UserService {
+	public void add() {
+        System.out.println("service add......."+name);
+        userDao.add();
+    }
+}
+```
+**4.具体讲解开启组件扫描的详细配置**
+
+如果引入的包中不加说明，默认会被所有包都扫描了
+
+其实可以加一些说明，过滤或者添加说明只扫描一些包
+
+自定义一个过滤，定义扫描的注解类
+
+     use-default-filters="false" 表示现在不使用默认 filter，自己配置 filter
+     context:include-filter ，设置扫描哪些内容
+     type只扫描这种注解类
+     expression表示扫描的为该注解类
+
+```xml
+<!--示例 1
+
+-->
+<context:component-scan base-package="com.atguigu" use-defaultfilters="false">
+ <context:include-filter type="annotation"
+
+expression="org.springframework.stereotype.Controller"/><!--代表只扫描Controller注解的类-->
+</context:component-scan>
+```
+不定义一个过滤，扫面的所有内容，但可设置内容不扫描
+
+    context:exclude-filter： 设置哪些内容不进行扫描
+    
+
+```xml
+<!--示例 2
+
+-->
+<context:component-scan base-package="com.atguigu">
+ <context:exclude-filter type="annotation"
+
+expression="org.springframework.stereotype.Controller"/><!--表示Controller注解的类之外一切都进行扫描-->
+</context:component-scan>
+```
+
+**5.基于注解方式实现属性注入**
+
+定义两个类，一个接口实现类，一个类写函数
+接口实现类
+```java
+@Repository(value = "userDaoImpl1")
+public class UserDaoImpl implements UserDao {
+    @Override
+    public void add() {
+        System.out.println("dao add.....");
+    }
+}
+```
+`@Autowired`：根据属性类型自动装配
+```java
+@Autowired  //根据类型进行注入
+private UserDao userDao;
+```
+`@Qualifier(value=" ")`：根据属性名称自动注入
+```java
+@Autowired  //根据类型进行注入
+@Qualifier(value = "userDaoImpl1") //根据名称进行注入
+private UserDao userDao;
+```
+`@Resource`：可根据属性类型或者名称注入
+```java
+@Resource(name = "userDaoImpl1")  //根据名称进行注入
+private UserDao userDao;
+```
+`@Value`：注入普通类型的注入
+
+注解不是对象类型的定义，可以是字符串等其他
+```java
+@Value(value = "abc")
+private String name;
+```
+**完全注解开发**
+
+**主要是引用两个注解：**
+
+`@Configuration` 作为配置类的提示
+
+`@ComponentScan`扫描配置类的注解
+
+创建配置类，替代xml配置文件
+```java
+@Configuration  //作为配置类，替代xml配置文件
+@ComponentScan(basePackages = {"com.atguigu"})
+public class SpringConfig {
+
+}
+```
+测试类和之前不一样
+
+之前是加载配置文件xml
+
+现在是new一个对象，对象为注解的配置类，即加载这个配置类AnnotationConfigApplicationContext
+```java
+@Test
+public void testService2() {
+    //加载配置类
+    ApplicationContext context
+            = new AnnotationConfigApplicationContext(SpringConfig.class);
+    UserService userService = context.getBean("userService", UserService.class);
+    System.out.println(userService);
+    userService.add();
+}
 ```
