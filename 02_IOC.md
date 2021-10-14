@@ -501,3 +501,44 @@ xmlns:util="http://www.springframework.org/schema/util"
         <property name="list" ref="bookList"></property>
     </bean>
 ```
+## 2.5 IOC操作Bean管理（工厂bean)
+
+> spring有两种类型，一种是上面的普通bean，另一种是工厂bean
+> 普通bean，在配置文件中，定义的bean类型就是返回类型
+> 而工厂bean返回类型可以不同
+> 1.创建类，让这个类作为工厂bean，实现接口FactoryBean
+> 2.实现接口内的方法，定义返回的bean类型
+```java
+public class MyBean implements FactoryBean<Course> {
+
+    //定义返回bean
+    @Override
+    public Course getObject() throws Exception {
+        Course course = new Course();
+        course.setCname("abc");
+        return course;
+    }
+}
+```
+
+```xml
+<bean id="myBean" class="com.atguigu.spring5.factorybean.MyBean"></bean>
+```
+## 2.6 IOC操作Bean管理（bean作用域）
+
+**1.spring本身默认的时候是单实例**
+
+**测试代码**
+
+```java
+@Test
+    public void testCollection2() {
+        ApplicationContext context =
+                new ClassPathXmlApplicationContext("bean2.xml");
+        Book book1 = context.getBean("book", Book.class);
+        Book book2 = context.getBean("book", Book.class);
+       // book.test();
+        System.out.println(book1);
+        System.out.println(book2);
+    }
+```
