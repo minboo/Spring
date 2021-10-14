@@ -504,9 +504,13 @@ xmlns:util="http://www.springframework.org/schema/util"
 ## 2.5 IOC操作Bean管理（工厂bean)
 
 > spring有两种类型，一种是上面的普通bean，另一种是工厂bean
+> 
 > 普通bean，在配置文件中，定义的bean类型就是返回类型
+> 
 > 而工厂bean返回类型可以不同
+> 
 > 1.创建类，让这个类作为工厂bean，实现接口FactoryBean
+> 
 > 2.实现接口内的方法，定义返回的bean类型
 ```java
 public class MyBean implements FactoryBean<Course> {
