@@ -763,11 +763,11 @@ xmlns:context="http://www.springframework.org/schema/context"
 
 **spring针对Bean管理中创建对象提供注解**
 
-`@Component`： 游戏中普通的注解
+`@Component`： 原始通用普通的注解
 
-`@Service`：业务逻辑层以及Service层
+`@Service`：业务逻辑层
 
-`@Controller`： 外部层
+`@Controller`： web层
 
 `@Repository`：dao层即持久层
 
