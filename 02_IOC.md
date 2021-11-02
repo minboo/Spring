@@ -82,6 +82,7 @@ UserService userService = context.getBean("userService", UserService.class);
   
 在java文件中
   
+	
 ```java
   //1 加载spring配置文件
 ApplicationContext context =new ClassPathXmlApplicationContext("bean2.xml");
